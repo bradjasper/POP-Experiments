@@ -55,6 +55,7 @@
         springAnim = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerPosition];
         springAnim.toValue = toValue;
         springAnim.springSpeed = 20;
+        springAnim.springBounciness = 20;
         [self.circle pop_addAnimation:springAnim forKey:@"position"];
     }
 }
