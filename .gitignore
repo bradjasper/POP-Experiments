@@ -3,3 +3,5 @@
 Pods
 
 *.xcodeproj/xcuserdata/*.xcuserdatad
+*.xcworkspace/xcuserdata/*.xcuserdatad
+*.xcworkspace/xcshareddata
