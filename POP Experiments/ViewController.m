@@ -16,7 +16,7 @@
 
 @interface ViewController ()
 
-@property (nonatomic, strong) UILabel *label;
+@property (nonatomic, strong) UIView *circle;
 
 @end
 
@@ -26,64 +26,43 @@
 {
     [super viewDidLoad];
     
-    // Setup label
+    self.view.multipleTouchEnabled = YES;
     
-    self.label = [[UILabel alloc] initWithFrame:CGRectMake(50, 50, 100, 100)];
-    self.label.userInteractionEnabled = YES;
-    self.label.text = @"Hello POP!";
-    [self.view addSubview:self.label];
-    
-    NSLog(@"Adding label");
-    
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tappedLabel)];
-    [self.label addGestureRecognizer:tapGesture];
-    
-    
-    // Setup tweaks
-
-    UILabel *tweaksLabel = [[UILabel alloc] initWithFrame:CGRectMake(250, 0, 100, 100)];
-    tweaksLabel.userInteractionEnabled = YES;
-    tweaksLabel.text = @"Tweaks";
-    [self.view addSubview:tweaksLabel];
-    
-    UITapGestureRecognizer *tweakTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tappedTweaks)];
-    [tweaksLabel addGestureRecognizer:tweakTapGesture];
-    
+    self.circle = [[UIView alloc] initWithFrame:CGRectMake(100, 100, 100, 100)];
+    self.circle.layer.cornerRadius = 50;
+    self.circle.backgroundColor = [UIColor blueColor];
+    [self.view addSubview:self.circle];
 }
 
-- (void)tappedTweaks {
-    FBTweakViewController *tweakViewConroller = [[FBTweakViewController alloc] initWithStore:[FBTweakStore sharedInstance]];
-    [self presentViewController:tweakViewConroller animated:YES completion:nil];
-}
-
-- (void)tappedLabel
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    NSLog(@"Received gesture tap");
+    NSLog(@"Touches began = %d", [touches count]);
     
-    POPSpringAnimation *springAnim = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerPositionY];
-   
-
-    float toValue = FBTweakValue(@"View", @"Label", @"ToValue", 700.0);
-    float velocity = FBTweakValue(@"View", @"Label", @"Velocity", 5.0, 0.0, 50.0);
-    float bounciness = FBTweakValue(@"View", @"Label", @"Bouniness", 4.0, 0.0, 20.0);
-    float springSpeed = FBTweakValue(@"View", @"Label", @"Spring Speed", 12.0, 0.0, 20.0);
-
+    UITouch *touch = [[touches objectEnumerator] nextObject];
     
-    NSLog(@"Tapped label velocity=%f toValue=%f bounciness=%f springSpeed=%f", velocity, toValue, bounciness, springSpeed);
+    NSLog(@"touch = %@", touch);
     
-    springAnim.toValue = @(toValue);
-    springAnim.velocity = @(velocity);
-    springAnim.springBounciness = bounciness;
-    springAnim.springSpeed = springSpeed;
+    CGPoint tap = [touch locationInView:self.view];
+    NSValue *toValue = [NSValue valueWithCGPoint:tap];
     
-    springAnim.completionBlock = ^(POPAnimation *anim, BOOL finished) {
-        NSLog(@"Animation is complete");
-        self.label.frame = CGRectMake(50, 50, 100, 100);
-    };
-   
-    [self.label pop_addAnimation:springAnim forKey:@"size"];
+    POPSpringAnimation *springAnim = [self.circle pop_animationForKey:@"position"];
+    
+    if (springAnim != NULL) {
+        NSLog(@"Found spring animation!");
+        springAnim.toValue = toValue;
+    } else {
+        NSLog(@"No spring animation, creating");
+        springAnim = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerPosition];
+        springAnim.toValue = toValue;
+        springAnim.springSpeed = 20;
+        [self.circle pop_addAnimation:springAnim forKey:@"position"];
+    }
 }
 
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+//    NSLog(@"touched moved");
+}
 
 - (void)didReceiveMemoryWarning
 {
