@@ -39,11 +39,25 @@
     NSLog(@"Touches began = %d", [touches count]);
     
     UITouch *touch = [[touches objectEnumerator] nextObject];
+    CGPoint location = [touch locationInView:self.view];
+    [self updateCircleLocation:location];
     
-    NSLog(@"touch = %@", touch);
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    NSLog(@"Touches moved = %d", [touches count]);
     
-    CGPoint tap = [touch locationInView:self.view];
-    NSValue *toValue = [NSValue valueWithCGPoint:tap];
+    UITouch *touch = [[touches objectEnumerator] nextObject];
+    CGPoint location = [touch locationInView:self.view];
+    [self updateCircleLocation:location];
+}
+
+
+    
+- (void)updateCircleLocation:(CGPoint)location
+{
+    NSValue *toValue = [NSValue valueWithCGPoint:location];
     
     POPSpringAnimation *springAnim = [self.circle pop_animationForKey:@"position"];
     
@@ -55,14 +69,9 @@
         springAnim = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerPosition];
         springAnim.toValue = toValue;
         springAnim.springSpeed = 20;
-        springAnim.springBounciness = 20;
+        springAnim.springBounciness = 10;
         [self.circle pop_addAnimation:springAnim forKey:@"position"];
     }
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-//    NSLog(@"touched moved");
 }
 
 - (void)didReceiveMemoryWarning
